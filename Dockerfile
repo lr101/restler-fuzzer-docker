@@ -16,3 +16,13 @@ RUN apk add --no-cache python3 py3-pip
 RUN pip3 install requests applicationinsights
 
 COPY --from=builder /build /RESTler
+
+RUN mkdir /restler_bin
+
+WORKDIR /restler_bin
+
+COPY ./docker-entrypoint.sh /restler_bin/script.sh
+
+RUN chmod 755 /restler_bin/script.sh
+
+ENTRYPOINT /restler_bin/script.sh

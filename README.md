@@ -1,4 +1,69 @@
-# RESTler
+# The docker config I added
+
+I had at first a hard time to get the project up and running in docker. Therefore, I added my own docker configuration here.
+As an example server, the swagger-petstore docker image is used but can be replaced by your own easily.
+If you have an your server image already build, go to the docker-compose section.
+To build the restler-fuzzer docker image, go to the docker build and run section.
+
+### Using docker-compose
+
+Find the docker-compose file in the root directory of this project.
+You can add your own server image there. Don't forget to edit the port in the health check and in the environmental variable PORT.
+The compile, test and fuzz commands can be edited in the docker-entrypoint.sh file.
+The most important configurations can be directly set via the env variabled in the
+docker-compose.yaml file:
+
+```
+  - TIME_BUDGET=0.05                            # time in hours to fuzz (0.05h = 3 minutes)
+  - PORT=8080                                   # port of the server to fuzz
+  - OPEN_API_FILE=demo_petstore/openapi.json    # json or yaml file OpenAPI file
+```
+
+
+To fuzz:
+```
+docker-compose up --abort-on-container-exit --exit-code-from restler
+```
+
+
+### Using docker build and run
+
+To create your restler-fuzzer image run:
+
+```
+docker build -t restler/fuzzer .
+```
+**Run with:**
+
+```
+docker run -e TIME_BUDGET=0.05 -e PORT=<localhost server port> -e OPEN_API_FILE=<path to openapi file> -v .:/mnt/shared restler/fuzzer --add-host=host.docker.internal:host-gateway
+```
+
+**Or add to docker-compose:**
+
+Use the config below:
+
+Info: Use the same healthcheck logic like in this docker-compose file to guarantee the server finishing its startup before starting the fuzzing requests
+
+```
+restler:
+image: restler/fuzzer
+environment:
+  - TIME_BUDGET=0.05
+  - PORT=<TODO server port>
+  - OPEN_API_FILE=<TODO: path to OpenAPI file>
+  - SERVER=<TODO: your server name in this docker-compose file>
+depends_on:
+  server:
+    condition: service_healthy
+volumes:
+  - .:/mnt/shared
+links:
+  - <TODO: your server name in this docker-compose file>
+```
+
+
+# RESTler (same as original repository)
 
 ## What is RESTler?
 

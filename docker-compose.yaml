@@ -1,0 +1,24 @@
+# run with 'docker-compose up --abort-on-container-exit --exit-code-from restler'
+
+services:
+  server:
+    image: "swaggerapi/petstore" # your server docker image
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8080" ]
+      interval: 10s
+      timeout: 2s
+      retries: 20
+  restler:
+    build: .
+    environment:
+      - TIME_BUDGET=0.05
+      - PORT=8080
+      - OPEN_API_FILE=demo_petstore/openapi.json
+      - SERVER=server
+    depends_on:
+      server:
+        condition: service_healthy
+    volumes:
+      - .:/mnt/shared
+    links:
+      - server
