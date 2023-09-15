@@ -25,4 +25,4 @@ COPY ./docker-entrypoint.sh /restler_bin/script.sh
 
 RUN chmod 755 /restler_bin/script.sh
 
-ENTRYPOINT /restler_bin/script.sh
+ENTRYPOINT ["/bin/sh", "/restler_bin/script.sh"]
